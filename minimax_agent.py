@@ -1,13 +1,27 @@
 # minimax_agent.py
 from agent_base import Agent
 from game import GameState
+import time
 
 class MinimaxAgent(Agent):
+
+    nodes_explored = 0
+    time_taken = 0.0
+    
     def get_action(self, state: GameState, depth=None):
-        _, action = self.minimax(state)
+    
+        self.nodes_explored = 0
+        start_time = time.time()
+        
+        _, action = self.minimax(state, depth_limit=depth)
+        
+        end_time = time.time()
+        self.time_taken = end_time - start_time
+        
         return action
 
     def minimax(self, state, depth_limit=None):
+        self.nodes_explored += 1
         """
         Returns: (value, best_action)
         
@@ -24,4 +38,32 @@ class MinimaxAgent(Agent):
               state.generate_successor(), and state.to_move
         """
         # TODO: Remove this line and implement the minimax algorithm
-        raise NotImplementedError("Minimax algorithm not implemented yet")
+        
+        if state.is_terminal(): #base case
+            return state.utility(), None
+        
+        player = state.to_move
+        
+        # max player
+        if player == 'X':
+            best_value = float('-inf')
+            best_action = None
+            for action in state.get_legal_actions():
+                successor = state.generate_successor(action)
+                value, _ = self.minimax(successor, depth_limit)
+                if value > best_value:
+                    best_value = value
+                    best_action = action
+            return best_value, best_action
+            
+        # min player
+        else:
+            best_value = float('inf')
+            best_action = None
+            for action in state.get_legal_actions():
+                successor = state.generate_successor(action)
+                value, _ = self.minimax(successor, depth_limit)
+                if value < best_value:
+                    best_value = value
+                    best_action = action
+            return best_value, best_action

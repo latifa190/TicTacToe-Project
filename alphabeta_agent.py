@@ -2,14 +2,27 @@
 from agent_base import Agent
 from game import GameState
 from evaluation import betterEvaluationFunction
+import time
 
 class AlphaBetaAgent(Agent):
+
+    nodes_explored = 0
+    time_taken = 0.0
+    
     def get_action(self, state: GameState, depth=None):
+        
+        self.nodes_explored = 0
+        start_time = time.time()
+        
         """
         Returns the best move index (0-8) for Tic-Tac-Toe using Alpha-Beta pruning.
         """
         value, action = self.alphabeta(state, alpha=float('-inf'), beta=float('inf'),
                                        depth_limit=depth, current_depth=0)
+                                       
+        end_time = time.time()
+        self.time_taken = end_time - start_time
+        
         # Safety fallback (never return None)
         if action is None:
             legal = state.get_legal_actions()
@@ -18,6 +31,8 @@ class AlphaBetaAgent(Agent):
         return action
 
     def alphabeta(self, state: GameState, alpha, beta, depth_limit, current_depth):
+    
+        self.nodes_explored += 1
         """
         Recursive alpha-beta search returning (value, best_action).
         
@@ -37,4 +52,40 @@ class AlphaBetaAgent(Agent):
         Hint: Use betterEvaluationFunction(state) for non-terminal cutoff evaluation
         """
         # TODO: Remove this line and implement the alpha-beta algorithm
-        raise NotImplementedError("Alpha-beta pruning algorithm not implemented yet")
+        
+        if state.is_terminal():
+            return state.utility(), None
+
+        if depth_limit is not None and current_depth >= depth_limit:
+            return betterEvaluationFunction(state), None
+
+        player = state.to_move
+        best_action = None
+
+        # max plater
+        if player == 'X':
+            value = float('-inf')
+            for action in state.get_legal_actions():
+                successor = state.generate_successor(action)
+                score, _ = self.alphabeta(successor, alpha, beta, depth_limit, current_depth + 1)
+                if score > value:
+                    value = score
+                    best_action = action
+                alpha = max(alpha, value)
+                if alpha >= beta:
+                    break  #here we prune
+            return value, best_action
+
+        # min player
+        else:
+            value = float('inf')
+            for action in state.get_legal_actions():
+                successor = state.generate_successor(action)
+                score, _ = self.alphabeta(successor, alpha, beta, depth_limit, current_depth + 1)
+                if score < value:
+                    value = score
+                    best_action = action
+                beta = min(beta, value)
+                if beta <= alpha:
+                    break  # prune
+            return value, best_action

@@ -1,13 +1,27 @@
 # minimax_agent.py
 from agent_base import Agent
 from game import GameState
+import time
 
 class MinimaxAgent(Agent):
+
+    nodes_explored = 0
+    time_taken = 0.0
+    
     def get_action(self, state: GameState, depth=None):
-        _, action = self.minimax(state)
+    
+        self.nodes_explored = 0
+        start_time = time.time()
+        
+        _, action = self.minimax(state, depth_limit=depth)
+        
+        end_time = time.time()
+        self.time_taken = end_time - start_time
+        
         return action
 
     def minimax(self, state, depth_limit=None):
+        self.nodes_explored += 1
         """
         Returns: (value, best_action)
         

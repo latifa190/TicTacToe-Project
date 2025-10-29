@@ -2,14 +2,27 @@
 from agent_base import Agent
 from game import GameState
 from evaluation import betterEvaluationFunction
+import time
 
 class ExpectimaxAgent(Agent):
+    
+    nodes_explored = 0
+    time_taken = 0.0
+    
     def get_action(self, state: GameState, depth=None):
+        
+        self.nodes_explored = 0
+        start_time = time.time()
+        
         """
         Returns the best move index (0-8) using Expectimax search.
         Handles stochastic (non-optimal) opponent moves.
         """
         value, action = self.expectimax(state, depth_limit=depth, current_depth=0)
+        
+        end_time = time.time()
+        self.time_taken = end_time - start_time
+        
         # Safety fallback in case no action is found
         if action is None:
             legal = state.get_legal_actions()
@@ -18,6 +31,9 @@ class ExpectimaxAgent(Agent):
         return action
 
     def expectimax(self, state: GameState, depth_limit, current_depth):
+        
+        self.nodes_explored += 1
+        
         """
         Recursive Expectimax returning (value, best_action)
         

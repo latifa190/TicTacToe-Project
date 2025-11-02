@@ -33,9 +33,9 @@ def run_match(agent_class_x, agent_class_o, depth, game_id):#run 1 round
         agent.time_taken = time.time() - start_time
         state = state.generate_successor(action)
 
-        match_results.append({# record its metrics
+        match_results.append({# record its metrics in a dictionanary
             "Game_ID": game_id,
-            "Agent_Type": agent.__class__.__name__,
+            "Agent_Type": agent.__class__.__name__,#name of class the obj belongs to
             "Player": current_player,
             "Depth": depth,
             "Nodes_Explored": agent.nodes_explored,
@@ -58,7 +58,7 @@ def run_experiments(agent_pairs, depths, num_games=10):#run more rounds with dif
                 all_results.extend(run_match(agent_x, agent_o, depth, game_counter))
                 game_counter += 1
 
-    return pd.DataFrame(all_results)
+    return pd.DataFrame(all_results)#converts list into data table
 
 
 def plot_metrics(df):
@@ -80,7 +80,7 @@ def plot_metrics(df):
     plt.title("Nodes Explored vs Depth")
     plt.legend()
     plt.grid(True)
-    plt.savefig("Nodes_Explored.png")
+    plt.savefig("Nodes_Explored.png")#saves on local place
 
     plt.figure(figsize=(8, 5))
     for agent in summary["Agent_Type"].unique():
@@ -109,5 +109,5 @@ def main():
     df = run_experiments(agent_pairs, depths, num_games)
     plot_metrics(df)
 
-if __name__ == "__main__":
+if __name__ == "__main__":#this means if the file is executed diretly by directly calling it, the main function runs
     main()
